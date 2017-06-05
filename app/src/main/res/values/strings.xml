@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Word</string>
+    <string name="search_word">Search</string>
+    <string name="word_search_hint">Enter the word for searching</string>
+</resources>
