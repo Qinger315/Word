@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,8 +28,11 @@ import java.util.List;
 
 public class WordListFragment extends Fragment {
 
+    private static final String TAG = "WordListFragment";
+
     private RecyclerView mWordRecyclerView;
     private WordAdapter mAdapter;
+    TitleItemDecoration mtitleItemDecoration;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,6 +48,8 @@ public class WordListFragment extends Fragment {
 
         mWordRecyclerView = (RecyclerView) view.findViewById(R.id.word_recycler_view);
         mWordRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mWordRecyclerView.addItemDecoration(
+                new DividerItemDecoration(getActivity(),DividerItemDecoration.VERTICAL_LIST));
 
         updateUI();
 
@@ -127,25 +133,23 @@ public class WordListFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu,inflater);
         inflater.inflate(R.menu.fragment_word_search, menu);
-
         MenuItem searchItem = menu.findItem(R.id.menu_search);
         final SearchView searchView = (SearchView) searchItem.getActionView();
-
-
-
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
 
-                return false;
+                mWordRecyclerView.removeItemDecoration(mtitleItemDecoration);
+                updateSearchUI(query);
+                return true;
             }
 
             @Override
             public boolean onQueryTextChange(String query) {
 
-                updateSearchUI(query);
-                return true;
+
+                return false;
             }
         });
 
@@ -157,25 +161,34 @@ public class WordListFragment extends Fragment {
         WordLab wordLab = WordLab.get(getActivity());
         List<Word> words = wordLab.getWords(query);
 
-        updateAdapter(words);
+        if (words.size() >0 ) {
+             updateAdapter(words);
+        }
+
 
     }
     private void updateUI() {
 
         WordLab wordLab = WordLab.get(getActivity());
         List<Word> words = wordLab.getWords();
-
         updateAdapter(words);
     }
 
-    private void updateAdapter(List<Word> words) {
+    private void updateAdapter(final List<Word> words) {
+
         if(mAdapter == null) {
             mAdapter = new WordAdapter(words);
+            mtitleItemDecoration = new TitleItemDecoration(getActivity(),words);
+            mWordRecyclerView.addItemDecoration(mtitleItemDecoration);
             mWordRecyclerView.setAdapter(mAdapter);
+
         } else {
             mAdapter.setWords(words);
             mAdapter.notifyDataSetChanged();
         }
+
+
+
     }
 
 

@@ -1,5 +1,7 @@
 package com.qing.android.word;
 
+import android.support.v7.widget.TintTypedArray;
+
 import java.util.UUID;
 
 /**
@@ -40,4 +42,10 @@ public class Word {
     public void setMean(String mean) {
         mMean = mean;
     }
+
+    public String getTag() {
+        return  mSpell.substring(0,1).toUpperCase();
+    }
+
+
 }
