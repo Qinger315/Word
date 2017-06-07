@@ -1,4 +1,4 @@
-package com.qing.android.word;
+package com.qing.android.word.Decoration;
 
 import android.content.Context;
 import android.content.res.TypedArray;

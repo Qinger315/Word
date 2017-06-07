@@ -7,18 +7,18 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
-import com.qing.android.word.database.WordDbSchema;
+import com.qing.android.word.Decoration.DividerItemDecoration;
+import com.qing.android.word.Decoration.IndexBar.IndexBar;
+import com.qing.android.word.Decoration.TitleItemDecoration;
 
 import java.util.List;
 
@@ -33,6 +33,10 @@ public class WordListFragment extends Fragment {
     private RecyclerView mWordRecyclerView;
     private WordAdapter mAdapter;
     TitleItemDecoration mtitleItemDecoration;
+    private TextView mTvSideBarHint;
+    private IndexBar mIndexBar;
+    private LinearLayoutManager mManager;
+    private List<String> mBodyDatas;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,9 +51,12 @@ public class WordListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_word_list,container,false);
 
         mWordRecyclerView = (RecyclerView) view.findViewById(R.id.word_recycler_view);
-        mWordRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mWordRecyclerView.setLayoutManager(mManager = new LinearLayoutManager(getActivity()));
         mWordRecyclerView.addItemDecoration(
                 new DividerItemDecoration(getActivity(),DividerItemDecoration.VERTICAL_LIST));
+        mTvSideBarHint = (TextView) view.findViewById(R.id.tvSideBarHint);//HintTextView
+        mIndexBar = (IndexBar) view.findViewById(R.id.indexBar);//IndexBar
+
 
         updateUI();
 
@@ -137,10 +144,13 @@ public class WordListFragment extends Fragment {
         final SearchView searchView = (SearchView) searchItem.getActionView();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
             @Override
             public boolean onQueryTextSubmit(String query) {
 
                 mWordRecyclerView.removeItemDecoration(mtitleItemDecoration);
+                mIndexBar.setVisibility(View.INVISIBLE);
+                closeKeyboard();
                 updateSearchUI(query);
                 return true;
             }
@@ -176,10 +186,17 @@ public class WordListFragment extends Fragment {
 
     private void updateAdapter(final List<Word> words) {
 
+
+
+        mIndexBar.getDataHelper().sortSourceDatas(words);
         if(mAdapter == null) {
             mAdapter = new WordAdapter(words);
             mtitleItemDecoration = new TitleItemDecoration(getActivity(),words);
             mWordRecyclerView.addItemDecoration(mtitleItemDecoration);
+            mIndexBar.setmPressedShowTextView(mTvSideBarHint)//设置HintTextView
+                    .setNeedRealIndex(true)//设置需要真实的索引
+                    .setmLayoutManager(mManager)//设置RecyclerView的LayoutManager
+                    .setmSourceDatas(words);//设置数据源
             mWordRecyclerView.setAdapter(mAdapter);
 
         } else {
@@ -189,6 +206,14 @@ public class WordListFragment extends Fragment {
 
 
 
+    }
+
+    private void closeKeyboard() {
+        View view = getActivity().getWindow().peekDecorView();
+        if (view != null) {
+            InputMethodManager inputMethodManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
 

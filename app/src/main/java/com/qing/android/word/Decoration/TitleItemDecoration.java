@@ -1,4 +1,4 @@
-package com.qing.android.word;
+package com.qing.android.word.Decoration;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -9,6 +9,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.View;
+
+import com.qing.android.word.Word;
 
 import java.util.List;
 
@@ -91,11 +93,20 @@ public class TitleItemDecoration extends  RecyclerView.ItemDecoration{
         }
 
         @Override
-        public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {//最后调用 绘制在最上层
+        public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
             int pos = ((LinearLayoutManager)(parent.getLayoutManager())).findFirstVisibleItemPosition();
-
             String tag = mWords.get(pos).getTag();
             View child = parent.findViewHolderForLayoutPosition(pos).itemView;
+            boolean flag = false;
+            if ((pos + 1) < mWords.size()) {
+                if (null != tag && !tag.equals(mWords.get(pos + 1).getTag())) {
+                    if (child.getHeight() + child.getTop() < mTitleHeight) {
+                        c.save();
+                        flag = true;
+                        c.translate(0, child.getHeight() + child.getTop() - mTitleHeight);
+                    }
+                }
+            }
             mPaint.setColor(COLOR_TITLE_BG);
             c.drawRect(parent.getPaddingLeft(),
                     parent.getPaddingTop(), parent.getRight() - parent.getPaddingRight(), parent.getPaddingTop() + mTitleHeight, mPaint);
@@ -104,6 +115,8 @@ public class TitleItemDecoration extends  RecyclerView.ItemDecoration{
             c.drawText(tag, child.getPaddingLeft(),
                     parent.getPaddingTop() + mTitleHeight - (mTitleHeight / 2 - mBounds.height() / 2),
                     mPaint);
+            if (flag)
+                c.restore();
         }
 
         @Override
@@ -113,7 +126,7 @@ public class TitleItemDecoration extends  RecyclerView.ItemDecoration{
             if (position > -1) {
                 if (position == 0) {
                     outRect.set(0, mTitleHeight, 0, 0);
-                } else {//其他的通过判断
+                } else {
                     if (null != mWords.get(position).getTag() &&
                             !mWords.get(position).getTag().equals(mWords.get(position - 1).getTag())) {
                         outRect.set(0, mTitleHeight, 0, 0);

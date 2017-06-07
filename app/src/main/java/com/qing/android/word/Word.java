@@ -1,6 +1,6 @@
 package com.qing.android.word;
 
-import android.support.v7.widget.TintTypedArray;
+import com.qing.android.word.Decoration.IndexBar.Bean.BaseIndexPinyinBean;
 
 import java.util.UUID;
 
@@ -8,11 +8,12 @@ import java.util.UUID;
  * Created by qing on 2017/5/22.
  */
 
-public class Word {
+public class Word extends BaseIndexPinyinBean {
 
     private UUID mId;
     private String mSpell;
     private String mMean;
+    private boolean isTop;
 
     public Word() {
         this(UUID.randomUUID());
@@ -46,6 +47,17 @@ public class Word {
     public String getTag() {
         return  mSpell.substring(0,1).toUpperCase();
     }
+
+    @Override
+    public String getTarget() { return mSpell;}
+
+    @Override
+    public  boolean isNeedToPinyin() { return !isTop; }
+
+    @Override
+    public  boolean isShowSuspension() { return !isTop; }
+
+
 
 
 }
